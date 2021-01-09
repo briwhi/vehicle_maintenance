@@ -1,11 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, Column
-from user import User
-from vehicle import Vehicle
-
-
+from sqlalchemy import ForeignKey
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'This is secret'
@@ -14,29 +10,48 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-
-
-
-
-
-
+# --------------------Task Class---------------------------
 class Task(db.Model):
-    id = Column(db.Integer, primary_key=True)
-    vehicle_id = Column(db.Integer, ForeignKey('vehicle.id'))
-    name = Column(db.String(50))
-    date = Column(db.Date)
-    mileage = Column(db.Integer)
+    id = db.Column(db.Integer, primary_key=True)
+    vehicle_id = db.Column(db.Integer, ForeignKey('vehicle.id'))
+    name = db.Column(db.String(50))
+    date = db.Column(db.Date)
+    mileage = db.Column(db.Integer)
 
 
-# create db
-db.create_all()
+# ---------------------Vehicle Class--------------------------
+class Vehicle(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer)
+    manufacturer = db.Column(db.String(40))
+    make = db.Column(db.String(50))
+    vin = db.Column(db.String(17))
+    user_id = db.Column(db.Integer, ForeignKey('user.id'))
+    tasks = relationship("Task")
 
 
-# routes
+# ------------------User Class---------------------------------
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    vehicles = relationship("Vehicle")
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(128))
+
+# db.create_all()
+
+
 @app.route('/')
 def home():
-    #vehicles = Vehicle.query.all()
+
     return render_template("index.html")
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == "POST":
+        return "POST Method"
+
+    return render_template("register.html")
 
 
 if __name__ == "__main__":

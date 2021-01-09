@@ -1,0 +1,9 @@
+{% block content %}
+    <form action="{{ url_for('register') }}" method="POST">
+        Email:
+        <input type="text" name="email" id="email">
+        Password:
+        <input type="text" name="pass" id="pass">
+        <button>Submit</button>
+    </form>
+{% endblock %}
