@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'This is secret'
@@ -49,7 +50,13 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":
-        return "POST Method"
+        data = request.form
+        email = data['email']
+        clear_password = data['password']
+        hash_password = generate_password_hash(clear_password)
+        user = User(email=email, password=hash_password)
+        db.session.add(user)
+        db.session.commit()
 
     return render_template("register.html")
 
