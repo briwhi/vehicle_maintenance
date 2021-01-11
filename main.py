@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
-from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'This is secret'
@@ -23,42 +22,41 @@ class Task(db.Model):
 # ---------------------Vehicle Class--------------------------
 class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30))
     year = db.Column(db.Integer)
     manufacturer = db.Column(db.String(40))
     make = db.Column(db.String(50))
-    vin = db.Column(db.String(17))
-    user_id = db.Column(db.Integer, ForeignKey('user.id'))
     tasks = relationship("Task")
 
-
-# ------------------User Class---------------------------------
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    vehicles = relationship("Vehicle")
-    email = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(128))
 
 # db.create_all()
 
 
 @app.route('/')
+@app.route('/home')
 def home():
+    vehicles = Vehicle.query.all()
+    return render_template("index.html", vehicles=vehicles)
 
-    return render_template("index.html")
 
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == "POST":
-        data = request.form
-        email = data['email']
-        clear_password = data['password']
-        hash_password = generate_password_hash(clear_password)
-        user = User(email=email, password=hash_password)
-        db.session.add(user)
+@app.route('/add_vehicle', methods=['POST', 'GET'])
+def add_vehicle():
+    if request.method == 'POST':
+        name = request.form['name']
+        manufacturer = request.form['manufacturer']
+        year = request.form['year']
+        model = request.form['model']
+        vehicle = Vehicle(name=name, manufacturer=manufacturer, year=year, make=model)
+        db.session.add(vehicle)
         db.session.commit()
+        return redirect(url_for('vehicle_detail'), id=vehicle.id)
+    return render_template("add_vehicle.html")
 
-    return render_template("register.html")
+
+@app.route('/vehicle_detail/<id>')
+def vehicle_detail(id):
+    vehicle = Vehicle.query.get(id)
+    return render_template("vehicle_detail.html", vehicle=vehicle)
 
 
 if __name__ == "__main__":

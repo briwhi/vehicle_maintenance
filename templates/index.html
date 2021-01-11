@@ -1,11 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-    <form action="login" method="post">
-        Email:
-        <input id="email" name="email" type="text">
-        Password:
-        <input id="pass" name="pass" type="password">
-        <button type="submit">Login</button>
-    </form>
-    <a href="{{ url_for('register') }}" type="button">Register</a>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Year</th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+
+        </tr>
+        {% for vehicle in vehicles %}
+            <tr>
+                <td>{{ vehicle.name }}</td>
+                <td>{{ vehicle.year }}</td>
+                <td>{{ vehicle.manufacturer }}</td>
+                <td>{{ vehicle.make }}</td>
+            </tr>
+        {%  endfor %}
+    </table>
+    <a href="{{ url_for('add_vehicle') }}" type="button">Add Vehicle</a></a>
 {% endblock %}}
